@@ -4,6 +4,9 @@ const express = require("express");
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
+const cors = require('cors');
+const { isProduction } = require('./config/keys');
+
 
 const usersRouter = require('./routes/api/users'); // update the import file path
 const tweetsRouter = require('./routes/api/tweets');
@@ -14,6 +17,15 @@ app.use(logger('dev')); // log request components (URL/method) to terminal
 app.use(express.json()); // parse JSON request body
 app.use(express.urlencoded({ extended: false })); // parse urlencoded request body
 app.use(cookieParser()); // parse cookies as an object on req.cookies
+
+// ADD THIS SECURITY MIDDLEWARE
+// Security Middleware
+if (!isProduction) {
+    // Enable CORS only in development because React will be on the React
+    // development server (http://localhost:3000). (In production, the Express 
+    // server will serve the React files statically.)
+    app.use(cors());
+}
 
 // Attach Express routers
 app.use('/api/users', usersRouter); // update the path
