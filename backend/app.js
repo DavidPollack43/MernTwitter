@@ -7,6 +7,8 @@ const logger = require('morgan');
 const cors = require('cors');
 const { isProduction } = require('./config/keys');
 
+const csurf = require('csurf');
+
 
 const usersRouter = require('./routes/api/users'); // update the import file path
 const tweetsRouter = require('./routes/api/tweets');
@@ -26,6 +28,18 @@ if (!isProduction) {
     // server will serve the React files statically.)
     app.use(cors());
 }
+
+// Set the _csrf token and create req.csrfToken method to generate a hashed
+// CSRF token
+app.use(
+    csurf({
+      cookie: {
+        secure: isProduction,
+        sameSite: isProduction && "Lax",
+        httpOnly: true
+      }
+    })
+  );
 
 // Attach Express routers
 app.use('/api/users', usersRouter); // update the path
