@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
 const passport = require('passport');
+const { loginUser } = require('../../config/passport.js');
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
@@ -21,7 +22,7 @@ router.post('/register', async (req, res, next) => {
   });
 
   if (user) {
-    // Throw a 400 error if the email address and/or email already exists
+    // Throw a 400 error if the email address and/or username already exists
     const err = new Error("Validation Error");
     err.statusCode = 400;
     const errors = {};
@@ -48,7 +49,7 @@ router.post('/register', async (req, res, next) => {
       try {
         newUser.hashedPassword = hashedPassword;
         const user = await newUser.save();
-        return res.json({ user });
+        return res.json(await loginUser(user)); 
       }
       catch(err) {
         next(err);
@@ -66,7 +67,7 @@ router.post('/login', async (req, res, next) => {
       err.errors = { email: "Invalid credentials" };
       return next(err);
     }
-    return res.json({ user });
+    return res.json(await loginUser(user)); 
   })(req, res, next);
 });
 
